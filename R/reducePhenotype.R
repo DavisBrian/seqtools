@@ -3,59 +3,50 @@
 #' @description This function reduces a data set to only the variables used in 
 #' a model removing subjects with missing data.
 #' 
-#' @inheritParams phenotype
+#' @param p an object of class 'phenotype'.  
 #' 
-#' @details  This function reduces a data set to only the variables used in 
-#' a model removing subjects with missing data.  Also, it makes the row names 
-#' of the resulting data fram the subject identifier.  If the formula is a
-#' coxph formula then it assumes the all terms before the first covariate are
-#' needed.
-#' 
-#' @return data frame with only the columns specified in the formula and with
-#          the (optional) row names as the subject identifier.
+#' @details  This function reduces a data set to only the variables used in a
+#'   model removing subjects with missing data.  Also, it makes the row names of
+#'   the resulting data fram the subject identifier.  If a gender column is
+#'   specified the column identifiying the gender will be retained. 
+#'  
+#' @return an object of class 'phenotype'.  \code{data} is minimal, \code{include} is set to, \code{exclude} is set to
 #'  
 #' @export
 #
 # [TBD] 
-#  - add verbose option for debugging purposes
-#  - add in support for "phenotype" objects
-reducePhenotype <- function(p, pformula, id=NULL, gender=NULL) {
-  checkPhenotype(p, pformula, idCol=id, genderCol=gender)   
+reducePhenotype <- function(p) {
   
-  if (!is.null(id)) {
-    rownames(p) <- p[ , id]
-    p <- p[, -match(id, colnames(p))]
+  if (class(p) != "phenotype") {
+    stop("Object must be of class 'phenotype'")
+  }
+  
+  checkPhenotype(p) 
+  
+  pheno <- p$data
+  
+  if (!is.null(p$formula)) {
+    cn <- colnames(get_all_vars(p$formula, pheno))    
+  } else {
+    cn <- colnames(pheno)
+  }
+  
+  if (!is.null(p$id)) {
+    rownames(pheno) <- pheno[ , p$id]
+    cn <- union(cn, p$id)    
   } 
   
-  if (!is.null(gender)) {
-    gtype <- typeof(p[ , gender])
-    g <- unique(p[ , gender])
-    if(gtype == "character") {
-      if (all.equal(g, c("F", "M"))) {
-        MF <- p[, gender] == "M"
-        p[, gender] <- MF
-      } else {
-        stop("Unable to convert gender.  Gender must be (0/1 or F/T) indicating female/male.")
-      }       
-    }                                   
+  if ((!is.null(p$gender))) {
+    cn <- union(cn, p$gender)    
   }
   
-  cn <- colnames(get_all_vars(as.formula(pformula), p))
+  pheno_reduced <- na.omit(pheno[, cn])
   
-  if ((!is.null(gender))) {
-    cn <- union(cn, gender)    
+  if (nrow(pheno_reduced) == 0L) {
+    stop("All phenotype data removed")
   }
   
-  if (any(!(cn %in% colnames(p)))) {
-    msg <- paste("Formula varaibles:", cn[!(cn %in% colnames(p))], "not found in phenotype file.", sep=" ")
-    stop(msg)
-  } else {
-    if (!is.null(cn)) {
-      pheno <- na.omit(p[, cn])
-    } else {
-      pheno <- na.omit(p)
-    }    
-  }
+  p$data <- pheno_reduced
   
-  return(pheno)
+  return(p)
 }

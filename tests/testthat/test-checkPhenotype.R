@@ -101,11 +101,10 @@ test_that("Include", {
 
 # exclude
 test_that("Exclude", {
-  expect_warning(checkPhenotype(df, id=NULL, exclude=paste0("S", 1:7)))
-  expect_null(checkPhenotype(df, id="sid", exclude=paste0("S", 1:7)))
-  
   expect_null(checkPhenotype(df, id="sid", exclude=c("S1", "S3", "D2")))
+  expect_warning(checkPhenotype(df, id=NULL, exclude=paste0("S", 1:7)))
   expect_warning(checkPhenotype(df, id="sid", exclude=paste0("D", 1:7)))
+  expect_error(checkPhenotype(df, id="sid", exclude=paste0("S", 1:7)))
 })
 
 

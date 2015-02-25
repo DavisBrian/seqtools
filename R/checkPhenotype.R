@@ -17,7 +17,10 @@
 #
 # [TBD] 
 #  - add verbose option for debugging purposes
-#  - add in support for "phenotype" objects
+#  - return msgs???
+#  - ability to include/exclude "MALE/FEMALE"
+#  - lm 'family' (binomial, gaussian, survival) & check the repsonse variable is
+#    of the appropriate type
 checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL) {
   
   if (class(data) == "phenotype"){
@@ -88,12 +91,13 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
   
   # check that the exclude list actually excludes someone
   if (!is.null(exclude)) {
-    subjects <- intersect(exclude, rownames(p))
-    if (length(subjects) == 0L) {
+    if (length(intersect(exclude, rownames(p))) == 0L) {
       warning("No subjects to exclude")
     }
+    if (length(setdiff(rownames(p), exclude)) == 0L) {
+      stop("All subjects excluded.")
+    }
   }
-  
   
   # check that the include/exclude lists done have overlapping individuals
   if (!is.null(include) & !is.null(exclude)) {

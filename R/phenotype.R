@@ -50,8 +50,8 @@
 #'  \item data data frame of the data for analysis 
 #'  \item formula formula to be used in further analysis  
 #'  \item gender column name containing the gender of the subjects
-#'  \item include the individuals in \code{data} that will be included is further analysis.
-#'  \item exclude the individuals in \code{data} that will be excluded is further analysis.    
+#'  \item include the subjects in \code{data} that will be included is further analysis.
+#'  \item exclude the subjects in \code{data} that will be excluded is further analysis.    
 #' }
 #' 
 #' It is importnat to note that return \code{include} and \code{exclude} are taken from data and not from the input parameters. 
@@ -61,16 +61,44 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
   
   checkPhenotype(data=data, formula=formula, id=id, gender=gender, include=include, exclude=exclude)
   
+  if (!is.null(id)) {
+    rownames(data) <- data[ , id]    
+  }
+  subjects.all <- rownames(data)
+  
+  # include 
+  if (!is.null(include)) {
+    subjects <- intersect(include, rownames(data))
+    data <- data[subjects, ]
+  }
+  
+  # exclude
+  if (!is.null(exclude)) {
+    subjects <- setdiff(rownames(data), exclude)
+    data <- data[subjects, ]
+  }
+  
+  if (!is.null(formula)) {
+    form <- as.formula(formula)
+  } else {
+    form <- NULL
+  }
+  
+  subjects_include <- rownames(data)
+  
+  subjects_exclude <- setdiff(subjects.all, rownames(data))
+  if (length(subjects_exclude) == 0L) {
+    subjects_exclude <- NULL
+  }
+  
   p <- list(data=data, 
-            formula=as.formula(formula), 
+            formula=form, 
             id=id, 
             gender=gender,
-            include=include,
-            exclude=exclude)
+            include=subjects_include,
+            exclude=subjects_exclude)
   
   class(p) <- "phenotype"
   
   return(p)
-  
 }
-  
