@@ -29,17 +29,14 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
     id <- data$id
     gender <- data$gender
     include <- data$include
-    exclude <- data$exclude
-    
+    exclude <- data$exclude    
   } else {
     p <- data
   }
   
   # check formula
   if (!is.null(formula)){
-#    if (!is.formula(formula) & !is.null(formula)) {
       formula <- as.formula(formula)    
-#    }
     
     # check the formula  variables are in the data
     vars <- tryCatch(get_all_vars(formula=formula, data=p), 
@@ -106,7 +103,6 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
       stop("Subjects cannot be in both included and exclude lists.")
     }
   }
-  
-  
+    
   return(invisible(NULL)) 
 }

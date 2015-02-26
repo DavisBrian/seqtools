@@ -91,14 +91,14 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
     subjects_exclude <- NULL
   }
   
-  p <- list(data=data, 
-            formula=form, 
-            id=id, 
-            gender=gender,
-            include=subjects_include,
-            exclude=subjects_exclude)
-  
-  class(p) <- "phenotype"
-  
-  return(p)
+  structure(
+    list(data=data, 
+         formula=form, 
+         id=id, 
+         gender=gender,
+         include=subjects_include,
+         exclude=subjects_exclude
+    ),
+    class = "phenotype"
+  )
 }

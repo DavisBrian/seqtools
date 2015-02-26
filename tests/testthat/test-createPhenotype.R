@@ -1,4 +1,4 @@
-context("Creating Phenotype Object")
+context("Creating phenotype Object")
 
 df <- data.frame(
   y   = c(3, 1, 4, 1, 5, 9, 3), 

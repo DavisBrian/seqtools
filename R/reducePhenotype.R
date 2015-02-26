@@ -41,12 +41,17 @@ reducePhenotype <- function(p) {
   }
   
   pheno_reduced <- na.omit(pheno[, cn])
-  
+ 
   if (nrow(pheno_reduced) == 0L) {
     stop("All phenotype data removed")
   }
   
   p$data <- pheno_reduced
+  
+#   subjects_dropped <- setdiff(rownames(pheno), rownames(pheno_reduced))
+#   if (length(subjects_dropped) > 0L) {
+#     p$dropped <- subjects_dropped
+#   }
   
   return(p)
 }
