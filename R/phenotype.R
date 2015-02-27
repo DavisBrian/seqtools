@@ -54,9 +54,12 @@
 #'  \item exclude the subjects in \code{data} that will be excluded is further analysis.    
 #' }
 #' 
-#' It is importnat to note that return \code{include} and \code{exclude} are taken from data and not from the input parameters. 
+#' It is important to note that return \code{include} and \code{exclude} are taken from data and not from the input parameters. 
 #'   
 #' @export
+#
+# [TBD]
+#  -add in a groupBy variable for multiple analyses
 phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL, reduce=FALSE) {
   
   checkPhenotype(data=data, formula=formula, id=id, gender=gender, include=include, exclude=exclude)

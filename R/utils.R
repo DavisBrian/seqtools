@@ -8,3 +8,7 @@ rule <- function(..., pad = "-") {
   width <- getOption("width") - nchar(title) - 1
   message(title, " ", paste(rep(pad, width, collapse = "")))
 }
+
+# is_phenotype
+#' @export
+is_phenotype <- function(x) {class(x) == "phenotype"}

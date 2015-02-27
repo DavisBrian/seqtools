@@ -46,7 +46,7 @@ an object of class 'phenotype'.  This is a list typicaly used to feed
  \item exclude the subjects in \code{data} that will be excluded is further analysis.
 }
 
-It is importnat to note that return \code{include} and \code{exclude} are taken from data and not from the input parameters.
+It is important to note that return \code{include} and \code{exclude} are taken from data and not from the input parameters.
 }
 \description{
 This function creates a phenotype object.

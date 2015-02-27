@@ -3,5 +3,6 @@
 S3method(print,summary_phenotype)
 S3method(summary,phenotype)
 export(checkPhenotype)
+export(is_phenotype)
 export(phenotype)
 export(reducePhenotype)

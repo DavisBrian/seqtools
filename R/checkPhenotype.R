@@ -23,7 +23,7 @@
 #    of the appropriate type
 checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL) {
   
-  if (class(data) == "phenotype"){
+  if (is_phenotype(data)){
     p <- data$data
     formula <- data$formula
     id <- data$id
@@ -36,7 +36,7 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
   
   # check formula
   if (!is.null(formula)){
-      formula <- as.formula(formula)    
+    formula <- as.formula(formula)    
     
     # check the formula  variables are in the data
     vars <- tryCatch(get_all_vars(formula=formula, data=p), 
@@ -97,12 +97,12 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
   }
   
   # check that the include/exclude lists done have overlapping individuals
-  if (!is.null(include) & !is.null(exclude)) {
+  if (!is.null(include) && !is.null(exclude)) {
     subjects <- intersect(include, exclude)
     if (length(subjects) > 0L) {
       stop("Subjects cannot be in both included and exclude lists.")
     }
   }
-    
+  
   return(invisible(NULL)) 
 }
