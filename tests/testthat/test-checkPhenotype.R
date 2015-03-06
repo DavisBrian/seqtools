@@ -1,4 +1,4 @@
-context("checkPhenotype")
+context("Check Phenotype")
 
 df <- data.frame(
   y   = c(3, 1, 4, 1, 5, 9, 3), 

@@ -60,6 +60,9 @@
 #
 # [TBD]
 #  -add in a groupBy variable for multiple analyses
+#  -add genderChar??? something to demote which character is "MALE/FEMALE"
+#  -add RaceGrp
+#  -add "family" (gaussian/binomial/survival)
 phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL, reduce=FALSE) {
   
   checkPhenotype(data=data, formula=formula, id=id, gender=gender, include=include, exclude=exclude)
@@ -72,13 +75,13 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
   # include 
   if (!is.null(include)) {
     subjects <- intersect(include, rownames(data))
-    data <- data[subjects, ]
+    data <- data[subjects, , drop=FALSE]
   }
   
   # exclude
   if (!is.null(exclude)) {
     subjects <- setdiff(rownames(data), exclude)
-    data <- data[subjects, ]
+    data <- data[subjects, , drop=FALSE]
   }
   
   if (!is.null(formula)) {
@@ -93,14 +96,14 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
   if (length(subjects_exclude) == 0L) {
     subjects_exclude <- NULL
   }
-  
+
   structure(
-    list(data=data, 
-         formula=form, 
-         id=id, 
-         gender=gender,
-         include=subjects_include,
-         exclude=subjects_exclude
+    list(data=data,
+         formula=form,
+         idCol=id,
+         genderCol=gender,
+         included=subjects_include,
+         excluded=subjects_exclude
     ),
     class = "phenotype"
   )

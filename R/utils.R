@@ -11,4 +11,11 @@ rule <- function(..., pad = "-") {
 
 # is_phenotype
 #' @export
-is_phenotype <- function(x) {class(x) == "phenotype"}
+is_phenotype <- function(x) { class(x) == "phenotype" }
+
+
+# is_snpinfo
+#' @export
+is_snpinfo <- function(x){ class(x) == "snpinfo" }
+
+

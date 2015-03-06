@@ -20,5 +20,6 @@
 #'
 #' @docType package
 #' @name seqtools
+#' @import plyr
 # @import logistf
 NULL

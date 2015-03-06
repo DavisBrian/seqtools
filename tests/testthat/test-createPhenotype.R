@@ -10,7 +10,7 @@ df <- data.frame(
 )
 
 
-res <- list(data=df, formula=NULL, id=NULL, gender=NULL, include=as.character(1:length(df$y)), exclude=NULL)
+res <- list(data=df, formula=NULL, idCol=NULL, genderCol=NULL, included=as.character(1:length(df$y)), excluded=NULL)
 class(res) <- "phenotype"
 
 # formula

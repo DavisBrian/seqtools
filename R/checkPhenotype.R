@@ -26,10 +26,10 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
   if (is_phenotype(data)){
     p <- data$data
     formula <- data$formula
-    id <- data$id
-    gender <- data$gender
-    include <- data$include
-    exclude <- data$exclude    
+    id <- data$idCol
+    gender <- data$genderCol
+    include <- data$included
+    exclude <- data$excluded   
   } else {
     p <- data
   }

@@ -41,6 +41,8 @@
 #' contingency table of counts for each level.
 #' 
 #' @export
+# [TBD]
+#  - pretty write to text file
 summary.phenotype <- function(p, max.levels=5) {
   if (class(p) != "phenotype") {
     stop("Object must be of class 'phenotype'")
