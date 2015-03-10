@@ -39,6 +39,8 @@ checkPhenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NUL
     formula <- as.formula(formula)    
     
     # check the formula  variables are in the data
+    # use all.vars and simply get the column names
+    # varnames <- all.vars(formula)
     vars <- tryCatch(get_all_vars(formula=formula, data=p), 
                      error = function(err) {
                        stop("One or more formula variables does not exist in the data.\n  ", err)

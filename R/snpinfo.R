@@ -114,4 +114,31 @@ snpinfo <- function(si, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos=N
   )
 }
 
+#' @export
+head.snpinfo<- function(x, n=6L, ...) {
+  stopifnot(length(n) == 1L)
+  
+  list(data=head(x$data, n=n),
+       snpNames=x$snpNames,
+       aggregateBy=x$aggregateBy,
+       chrCol=x$chr,
+       posCol=x$pos,
+       refCol=x$ref,
+       altCol=x$alt
+  )
+}
+
+#' @export
+tail.summary_genotype <- function(x, n=6L, ...) {
+  stopifnot(length(n) == 1L)
+  
+  list(data=tail(x$data, n=n),
+       snpNames=x$snpNames,
+       aggregateBy=x$aggregateBy,
+       chrCol=x$chr,
+       posCol=x$pos,
+       refCol=x$ref,
+       altCol=x$alt
+  )  
+}
 

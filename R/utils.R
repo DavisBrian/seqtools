@@ -11,11 +11,14 @@ rule <- function(..., pad = "-") {
 
 # is_phenotype
 #' @export
-is_phenotype <- function(x) { class(x) == "phenotype" }
+is_phenotype <- function(x) { identical(class(x), "phenotype") }
 
 
 # is_snpinfo
 #' @export
-is_snpinfo <- function(x){ class(x) == "snpinfo" }
+is_snpinfo <- function(x) { identical(class(x), "snpinfo") }
 
 
+# is_genotype
+#' @export
+is_genotype <- function(x) { identical(class(x), "genotype") }
