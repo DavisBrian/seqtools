@@ -65,6 +65,24 @@ summary.genotype <- function(x) {
   ) 
 }
 
+
+#' @export
+print.summary_genotype <- function(x, ...) {
+  rule("Site Level Metrics")
+  if (is.data.frame(x$site)) {
+    print.data.frame(x$site, right=FALSE, row.names=FALSE)   
+  } else {
+    print("None") 
+  }
+  rule("Sample Level Metrics")
+  if (is.data.frame(x$sample)) {
+    print.data.frame(x$sample, right=FALSE, row.names=FALSE)   
+  } else {
+    print("None") 
+  }
+  
+}
+
 #' @export
 head.summary_genotype <- function(x, n=6L, ...) {
   stopifnot(length(n) == 1L)
