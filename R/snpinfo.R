@@ -129,7 +129,7 @@ head.snpinfo<- function(x, n=6L, ...) {
 }
 
 #' @export
-tail.summary_genotype <- function(x, n=6L, ...) {
+tail.snpinfo <- function(x, n=6L, ...) {
   stopifnot(length(n) == 1L)
   
   list(data=tail(x$data, n=n),
