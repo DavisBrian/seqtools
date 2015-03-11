@@ -108,3 +108,29 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
     class = "phenotype"
   )
 }
+
+#' @export
+head.phenotype<- function(x, n=6L, ...) {
+  stopifnot(length(n) == 1L)
+  
+  list(data=head(x$data, n=n),
+       formula=x$formula,
+       idCol=x$idCol,
+       genderCol=x$genderCol,
+       included=head(x$included, n=n),
+       excluded=head(x$excluded, n=n)
+       )
+}
+
+#' @export
+tail.phenotype<- function(x, n=6L, ...) {
+  stopifnot(length(n) == 1L)
+  
+  list(data=tail(x$data, n=n),
+       formula=x$formula,
+       idCol=x$idCol,
+       genderCol=x$genderCol,
+       included=tail(x$included, n=n),
+       excluded=tail(x$excluded, n=n)
+  )
+}
