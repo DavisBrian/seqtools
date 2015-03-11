@@ -8,6 +8,7 @@ check_colnames <- function(x, cn) {
   if (!is.data.frame(x) && !is.matrix(x)) {
     stop("Must be a data.frame or a matrix")
   }
+  
   if (ncol(x) == 0L) {
     stop("x has 0 columns")
   }
@@ -62,7 +63,7 @@ check_type <- function(x, cn, type) {
         stop(stop_msg)
       }
     } else if (identical(type, "integer")) {
-      if (!is.integerl(x[ , cn])) {
+      if (!is.integer(x[ , cn])) {
         stop(stop_msg)
       }
     } else if (identical(type, "double") || identical(type, "numeric")) {
