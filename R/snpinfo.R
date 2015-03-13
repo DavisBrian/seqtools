@@ -56,36 +56,44 @@
 #
 # [TBD]
 #  - ???
-snpinfo <- function(si, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos=NULL, .ref=NULL, .alt=NULL, .filterBy=NULL, .filterFun=NULL, .otherCols=NULL) {
+snpinfo <- function(data, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos=NULL, .ref=NULL, .alt=NULL, .filterBy=NULL, .filterFun=NULL, .otherCols=NULL) {
+  
+  if(is.data.frame(data)) {
+    old_class <- class(data)
+    old_attribures <- attributes(data)
+  } else {
+    stop("data must be a data.frame or a class which extends a data.frame.")
+  }
   
   cn <- c(.snpNames, .aggregateBy, .chr, .pos, .ref, .alt, .filterBy, .otherCols)
   
-  # sanity check that the column names we think we passed are actually in si
-  check_colnames(si, cn)
+  
+  # sanity check that the column names we think we passed are actually in data
+  check_colnames(data, cn)
   
   # check input parameter data types are correct
-  check_type(si, .snpNames, "character")
-  check_type(si, .aggregateBy, "character")
-  if (!is.null(.chr)) { check_type(si, .chr, "character") }
-  if (!is.null(.pos)) { check_type(si, .pos, "integer") }
-  if (!is.null(.ref)) { check_type(si, .ref, "character") }
-  if (!is.null(.alt)) { check_type(si, .alt, "character") }
+  check_type(data, .snpNames, "character")
+  check_type(data, .aggregateBy, "character")
+  if (!is.null(.chr)) { check_type(data, .chr, "character") }
+  if (!is.null(.pos)) { check_type(data, .pos, "integer") }
+  if (!is.null(.ref)) { check_type(data, .ref, "character") }
+  if (!is.null(.alt)) { check_type(data, .alt, "character") }
   
   # see if we can apply .filterFun to .filterBy and create a logical vector
   if (is.null(.filterBy)) {
     keep <- TRUE
   } else {
     if (length(.filterBy) == 1L) {
-      check_type(si, .filterBy, "logical")
-      keep <- si[ , .filterBy]
+      check_type(data, .filterBy, "logical")
+      keep <- data[ , .filterBy]
     } else {      
       if (!is.null(.filterFun) && is.function(match.fun(.filterFun))) {
-        keep <- Reduce(.filterFun, si[, .filterBy])
+        keep <- Reduce(.filterFun, data[, .filterBy])
         # test the results after .filterFun is applied
         if (!is.logical(keep)) {
           stop(".filterFun must return a logical vector")
         }
-        if (length(keep) != nrow(si)) {
+        if (length(keep) != nrow(data)) {
           stop(".filterFun must return a logical vector of length nrow(si)")
         }        
       } else {
@@ -99,46 +107,58 @@ snpinfo <- function(si, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos=N
     keep[is.na(keep)] <- FALSE
   }
   
-  dat <- unique(data.frame(si[, cn, drop=FALSE], .keep=keep))
+  dat <- unique(data.frame(data[, cn, drop=FALSE], .keep=keep, stringAsFactors=FALSE)) 
   
   structure(
-    list(data=dat,
-         snpNames=.snpNames,
-         aggregateBy=.aggregateBy,
-         chrCol=.chr,
-         posCol=.pos,
-         refCol=.ref,
-         altCol=.alt
-    ),
-    class = "snpinfo"
+    dat,
+    snpNames = .snpNames,
+    aggregateBy = .aggregateBy,
+    chrCol = .chr,
+    posCol = .pos,
+    refCol = .ref,
+    altCol = .alt,
+    class = c("snpinfo", old_class)
   )
+  
+  #   structure(
+  #     list(data=dat,
+  #          snpNames=.snpNames,
+  #          aggregateBy=.aggregateBy,
+  #          chrCol=.chr,
+  #          posCol=.pos,
+  #          refCol=.ref,
+  #          altCol=.alt
+  #     ),
+  #     class = "snpinfo"
+  #   )
+  
 }
 
-#' @export
-head.snpinfo<- function(x, n=6L, ...) {
-  stopifnot(length(n) == 1L)
-  
-  list(data=head(x$data, n=n),
-       snpNames=x$snpNames,
-       aggregateBy=x$aggregateBy,
-       chrCol=x$chr,
-       posCol=x$pos,
-       refCol=x$ref,
-       altCol=x$alt
-  )
-}
+# #' @export
+# head.snpinfo<- function(x, n=6L, ...) {
+#   stopifnot(length(n) == 1L)
+#   
+#   list(data=head(x$data, n=n),
+#        snpNames=x$snpNames,
+#        aggregateBy=x$aggregateBy,
+#        chrCol=x$chr,
+#        posCol=x$pos,
+#        refCol=x$ref,
+#        altCol=x$alt
+#   )
+# }
 
-#' @export
-tail.snpinfo <- function(x, n=6L, ...) {
-  stopifnot(length(n) == 1L)
-  
-  list(data=tail(x$data, n=n),
-       snpNames=x$snpNames,
-       aggregateBy=x$aggregateBy,
-       chrCol=x$chr,
-       posCol=x$pos,
-       refCol=x$ref,
-       altCol=x$alt
-  )  
-}
+# #' @export
+# tail.snpinfo <- function(x, n=6L, ...) {
+#   stopifnot(length(n) == 1L)
+#   
+#   list(data=tail(x$data, n=n),
+#        snpNames=x$snpNames,
+#        aggregateBy=x$aggregateBy,
+#        chrCol=x$chr,
+#        posCol=x$pos,
+#        refCol=x$ref,
+#        altCol=x$alt
+#   )  
+# }
 

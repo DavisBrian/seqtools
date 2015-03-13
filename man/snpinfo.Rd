@@ -4,13 +4,11 @@
 \alias{snpinfo}
 \title{Create a snpinfo object}
 \usage{
-snpinfo(si, .snpNames = "Name", .aggregateBy = "gene", .chr = NULL,
+snpinfo(data, .snpNames = "Name", .aggregateBy = "gene", .chr = NULL,
   .pos = NULL, .ref = NULL, .alt = NULL, .filterBy = NULL,
   .filterFun = NULL, .otherCols = NULL)
 }
 \arguments{
-\item{si}{a data frame containing the SNP information.  Must contain fields given in '.snpNames' and '.aggregateBy'.}
-
 \item{.snpNames}{The field of si where the SNP identifiers are found. Default is 'Name'}
 
 \item{.aggregateBy}{The field of si on which the results were aggregated. Default is 'gene'. For single snps which are intended only for single variant analyses, it is reccomended that they have a unique identifier in this field.}
@@ -28,6 +26,8 @@ snpinfo(si, .snpNames = "Name", .aggregateBy = "gene", .chr = NULL,
 \item{.filterFun}{(optional) a function to apply to multiple '.filterBy' fields via \code{Reduce}. See Details.}
 
 \item{.otherCols}{(optional) other fields of si to propagate through. See Details.}
+
+\item{si}{a data frame containing the SNP information.  Must contain fields given in '.snpNames' and '.aggregateBy'.}
 }
 \value{
 an object of class 'snpinfo'.  This is a list typicaly used to feed

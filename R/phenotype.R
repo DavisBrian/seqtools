@@ -65,6 +65,14 @@
 #  -add "family" (gaussian/binomial/survival)
 phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL, reduce=FALSE) {
   
+  if(is.data.frame(data)) {
+    old_class <- class(data)
+    old_attribures <- attributes(data)
+  } else {
+    stop("data must be a data.frame or a class which extends a data.frame.")
+  }
+  
+  
   checkPhenotype(data=data, formula=formula, id=id, gender=gender, include=include, exclude=exclude)
   
   if (!is.null(id)) {
@@ -98,39 +106,50 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
   }
 
   structure(
-    list(data=data,
-         formula=form,
-         idCol=id,
-         genderCol=gender,
-         included=subjects_include,
-         excluded=subjects_exclude
-    ),
-    class = "phenotype"
+    data,
+    formula = form,
+    idCol = id,
+    genderCol = gender,
+    included = subjects_include,
+    excluded = subjects_exclude,
+    class = c("phenotype", old_class)
   )
+  
+#   structure(
+#     list(data=data,
+#          formula=form,
+#          idCol=id,
+#          genderCol=gender,
+#          included=subjects_include,
+#          excluded=subjects_exclude
+#     ),
+#     class = "phenotype"
+#   )
+
 }
 
-#' @export
-head.phenotype<- function(x, n=6L, ...) {
-  stopifnot(length(n) == 1L)
-  
-  list(data=head(x$data, n=n),
-       formula=x$formula,
-       idCol=x$idCol,
-       genderCol=x$genderCol,
-       included=head(x$included, n=n),
-       excluded=head(x$excluded, n=n)
-       )
-}
-
-#' @export
-tail.phenotype<- function(x, n=6L, ...) {
-  stopifnot(length(n) == 1L)
-  
-  list(data=tail(x$data, n=n),
-       formula=x$formula,
-       idCol=x$idCol,
-       genderCol=x$genderCol,
-       included=tail(x$included, n=n),
-       excluded=tail(x$excluded, n=n)
-  )
-}
+# #' @export
+# head.phenotype<- function(x, n=6L, ...) {
+#   stopifnot(length(n) == 1L)
+#   
+#   list(data=head(x$data, n=n),
+#        formula=x$formula,
+#        idCol=x$idCol,
+#        genderCol=x$genderCol,
+#        included=head(x$included, n=n),
+#        excluded=head(x$excluded, n=n)
+#        )
+# }
+# 
+# #' @export
+# tail.phenotype<- function(x, n=6L, ...) {
+#   stopifnot(length(n) == 1L)
+#   
+#   list(data=tail(x$data, n=n),
+#        formula=x$formula,
+#        idCol=x$idCol,
+#        genderCol=x$genderCol,
+#        included=tail(x$included, n=n),
+#        excluded=tail(x$excluded, n=n)
+#   )
+# }
