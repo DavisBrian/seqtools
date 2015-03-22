@@ -61,9 +61,9 @@
 # [TBD]
 #  -add in a groupBy variable for multiple analyses
 #  -add genderChar??? something to demote which character is "MALE/FEMALE"
-#  -add RaceGrp
+#  -add groupBy
 #  -add "family" (gaussian/binomial/survival)
-phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL, reduce=FALSE) {
+phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL) {
   
   if(is.data.frame(data)) {
     old_class <- class(data)
@@ -72,42 +72,50 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
     stop("data must be a data.frame or a class which extends a data.frame.")
   }
   
-  
-  checkPhenotype(data=data, formula=formula, id=id, gender=gender, include=include, exclude=exclude)
-  
-  if (!is.null(id)) {
-    rownames(data) <- data[ , id]    
+  # check colnames
+  cnames <- c(all.vars(formula), id, gender)
+  if (length(cnames) > 0L) {
+    check_colnames(cnames)
   }
-  subjects.all <- rownames(data)
   
-  # include 
+  # check formula
+  if (!is.null(formula)) {
+    check_formula(data, formula)
+  }
+  
+  # check id
+  if (is.null(id)) {
+    data$.idCol <- rownames(data)
+    id = ".idCol"
+  } 
+  check_ids(data, id)  
+  subjects.all <- data[ , id]
+  
+  # check gender
+  
+  # include / exclude    
+
   if (!is.null(include)) {
-    subjects <- intersect(include, rownames(data))
-    data <- data[subjects, , drop=FALSE]
+    subjects <- intersect(include, data[ , id])
+    data <- data[(data[ , id] %in% subjects), , drop=FALSE]
   }
   
   # exclude
   if (!is.null(exclude)) {
-    subjects <- setdiff(rownames(data), exclude)
-    data <- data[subjects, , drop=FALSE]
+    subjects <- setdiff(data[ , id], exclude)
+    data <- data[(data[ , id] %in% subjects), , drop=FALSE]
   }
   
-  if (!is.null(formula)) {
-    form <- as.formula(formula)
-  } else {
-    form <- NULL
-  }
+  subjects_include <- data[ , id]
   
-  subjects_include <- rownames(data)
-  
-  subjects_exclude <- setdiff(subjects.all, rownames(data))
+  subjects_exclude <- setdiff(subjects.all, subjects_include)
   if (length(subjects_exclude) == 0L) {
     subjects_exclude <- NULL
   }
 
   structure(
     data,
-    formula = form,
+    formula = formula,
     idCol = id,
     genderCol = gender,
     included = subjects_include,

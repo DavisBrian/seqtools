@@ -60,3 +60,11 @@ test_that("check_type", {
   expect_error(check_type(df, c("y", "bmi") , "numeric")) 
   expect_error(check_type(df, "y" , c("numeric", "double"))) 
 })
+
+# check formula
+
+# check duplicated
+
+# check ids
+
+# check gender

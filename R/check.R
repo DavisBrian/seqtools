@@ -83,3 +83,50 @@ check_type <- function(x, cn, type) {
   
   return(invisible(NULL))  
 }
+
+check_formula <- function(x, formula) {
+  vars <- tryCatch(get_all_vars(formula=formula, data=p), 
+                   error = function(err) {
+                     stop("One or more formula variables does not exist in the data.\n  ", err)
+                   }) 
+  
+  # not all missing
+  if (nrow(na.omit(vars)) == 0L) {
+    stop("formula reduce data to no row")
+  } 
+  return(invisible(NULL))  
+}
+
+check_duplicated <- function(x) {
+  if (any(duplicated(x))) {
+    stop("x has duplicates")
+  } 
+  return(invisible(NULL))
+}
+
+check_ids <- function(x, col) {
+
+  check_colnames(x, col)
+  
+  if (any(duplicated(x[ , col]))) {
+    stop("Duplicated ids.")
+  } 
+  
+  if (anyNA(x[ , col])) {
+    stop("Missing ids")
+  }
+  
+  return(invisible(NULL))  
+}
+
+check_gender <- function(x, code) {
+  
+  if (!is_grouping(x)) {
+    stop("gender is not a type which can be grouped.")
+  }
+  gtype <- typeof(x)
+  g <- unique(x)
+  if (nlevels(as.factor(g)) > 2L) {
+    stop("More than 2 gender levels specified.")
+  }  
+}

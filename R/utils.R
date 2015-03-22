@@ -22,3 +22,7 @@ is_snpinfo <- function(x) { identical(class(x), "snpinfo") }
 # is_genotype
 #' @export
 is_genotype <- function(x) { identical(class(x), "genotype") }
+
+is_grouping <- function(x) {
+  is.character(x) || is.factor(x) || is.intger(x) || is.logical(x)
+}
