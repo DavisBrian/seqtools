@@ -43,74 +43,27 @@
 #' @export
 # [TBD]
 #  - pretty write to text file
-summary.phenotype <- function(p, max.levels=5) {
-  if (class(p) != "phenotype") {
-    stop("Object must be of class 'phenotype'")
-  }
-  checkPhenotype(p) 
-  pheno <- p$data
-  
-  # numeric summary statsistics
-  cols <- sapply(pheno, function(x) { (is.numeric(x) || is.integer(x))})
-  if (sum(cols) > 0L) {
-    Variable <- colnames(pheno)[cols]
-    N <- colSums(!is.na(pheno[, cols, drop=FALSE]))
-    Nmiss <- colSums(is.na(pheno[, cols, drop=FALSE]))
-    Min <- sapply(pheno[, cols, drop=FALSE], min, na.rm=TRUE)
-    Q1 <- sapply(pheno[, cols, drop=FALSE], quantile, probs=0.25, na.rm=TRUE)
-    Median <- sapply(pheno[, cols, drop=FALSE], median, na.rm=TRUE)
-    Mean <- colMeans(pheno[, cols, drop=FALSE], na.rm=TRUE)
-    SD <- sapply(pheno[, cols, drop=FALSE], sd, na.rm=TRUE)
-    Q3 <- sapply(pheno[, cols, drop=FALSE], quantile, probs=0.75, na.rm=TRUE)
-    Max <- sapply(pheno[, cols, drop=FALSE], max, na.rm=TRUE)
-    
-    summary_numeric <- data.frame(Variable, N, Nmiss, Min, Q1, Median, Mean, SD, Q3, Max, stringsAsFactors=FALSE)
+summary.phenotype <- function(p, max.levels=5L) {
+  all_data <- if (is.grouped_df(p)) {
+    group_summary <- do(p, smry=summarize_phenotype(.))
+    nms <- as.character(group_summary[[1]])
+    out <- group_summary %[[% "smry"
+    setNames(out, nms)
   } else {
-    summary_numeric <- NA
-  }
-  
-  # factor
-  cols <- sapply(pheno, function(x) { (!is.numeric(x) || is.integer(x))})
-  if (sum(cols) > 0L) {   
-    Variable <- colnames(pheno)[cols]
-    N <- colSums(!is.na(pheno[, cols, drop=FALSE]))
-    Nmiss <- colSums(is.na(pheno[, cols, drop=FALSE]))
-    Levels <- sapply(pheno[, cols, drop=FALSE], 
-                     FUN=function(x) {
-                       if (is.factor(x)) {
-                         nlevels(x)
-                       } else {
-                         length(unique(x))
-                       }
-                     })
-    Datatype <- sapply(pheno[, cols, drop=FALSE], typeof)
-    
-    ss <- data.frame(Variable, N, Nmiss, Levels, Datatype, stringsAsFactors=FALSE)
-    
-    counts <- lapply(pheno[, cols, drop=FALSE], FUN=function(x) {
-      if (is.factor(x)) {
-        lvls <- nlevels(x)
-      } else {
-        lvls <- length(unique(x))
-      }
-      if (lvls <= max.levels) {
-        tbl <- table(x, useNA="always")
-      }
-    }
-    )
-    summary_cat <- list(sstats=ss, counts=counts)
-  } else {
-    summary_cat <- NA
-  }
-  
-  structure(
-    list(
-      numeric=summary_numeric, 
-      categorical=summary_cat
-    ), 
-    class = "summary_phenotype"
-  )
+    summarize_phenotype(p, max.levels)
+  } 
+  return(all_data)
 }
+
+summarize_phenotype <- function(p, max.levels=5L) {
+  structure(
+    list(numeric=summary_numeric_cols(p), 
+         categorical=summary_categorical_cols(p, max.levels)
+    ),         
+    class = "summary_phenotype"
+  )  
+}
+
 
 #' @export
 print.summary_phenotype <- function(x, ...) {
@@ -138,4 +91,65 @@ print.summary_phenotype <- function(x, ...) {
   } else {
     print("None") 
   }  
+}
+
+# get_numeric_cols <- function(x) { which(sapply(x, function(cx) { is.numeric(cx)})) }
+# get_categoricalc_cols <- function(x) { which(sapply(x, function(cx) { is_categorical(cx)})) }
+
+summary_numeric_cols <- function(dat) {
+  cols <- get_numeric_cols(dat)
+  
+  if (length(cols) > 0L) {
+    Variable <- colnames(dat)[cols]
+    N <- colSums(!is.na(dat[, cols, drop=FALSE]))
+    Nmiss <- colSums(is.na(dat[, cols, drop=FALSE]))
+    Min <- sapply(dat[, cols, drop=FALSE], min, na.rm=TRUE)
+    Q1 <- sapply(dat[, cols, drop=FALSE], quantile, probs=0.25, na.rm=TRUE)
+    Median <- sapply(dat[, cols, drop=FALSE], median, na.rm=TRUE)
+    Mean <- colMeans(dat[, cols, drop=FALSE], na.rm=TRUE)
+    SD <- sapply(dat[, cols, drop=FALSE], sd, na.rm=TRUE)
+    Q3 <- sapply(dat[, cols, drop=FALSE], quantile, probs=0.75, na.rm=TRUE)
+    Max <- sapply(dat[, cols, drop=FALSE], max, na.rm=TRUE)
+    
+    data.frame(Variable, N, Nmiss, Min, Q1, Median, Mean, SD, Q3, Max, stringsAsFactors=FALSE)
+    
+  } else {
+    NA
+  }
+}
+
+summary_categorical_cols <- function(dat, max.levels=5L) {
+  cols <- get_categoricalc_cols(dat)
+  
+  if (length(cols) > 0L) {
+    Variable <- colnames(dat)[cols]
+    N <- colSums(!is.na(dat[, cols, drop=FALSE]))
+    Nmiss <- colSums(is.na(dat[, cols, drop=FALSE]))
+    Levels <- sapply(dat[, cols, drop=FALSE], 
+                     FUN=function(x) {
+                       if (is.factor(x)) {
+                         nlevels(x)
+                       } else {
+                         length(unique(x))
+                       }
+                     })
+    Datatype <- sapply(dat[, cols, drop=FALSE], typeof)
+    
+    ss <- data.frame(Variable, N, Nmiss, Levels, Datatype, stringsAsFactors=FALSE)
+    
+    counts <- lapply(dat[, cols, drop=FALSE], FUN=function(x) {
+      if (is.factor(x)) {
+        lvls <- nlevels(x)
+      } else {
+        lvls <- length(unique(x))
+      }
+      if (lvls <= max.levels) {
+        tbl <- table(x, useNA="always")
+      }
+    }
+    )
+    list(sstats=ss, counts=counts)        
+  } else {
+    NA
+  }
 }

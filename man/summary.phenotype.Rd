@@ -4,7 +4,7 @@
 \alias{summary.phenotype}
 \title{Summarize the phenotype data frame}
 \usage{
-\method{summary}{phenotype}(p, max.levels = 5)
+\method{summary}{phenotype}(p, max.levels = 5L)
 }
 \arguments{
 \item{p}{an object of class 'phenotype'.}

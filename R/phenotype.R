@@ -59,11 +59,9 @@
 #' @export
 #
 # [TBD]
-#  -add in a groupBy variable for multiple analyses
 #  -add genderChar??? something to demote which character is "MALE/FEMALE"
-#  -add groupBy
 #  -add "family" (gaussian/binomial/survival)
-phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, exclude=NULL) {
+phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, groupBy=NULL, include=NULL, exclude=NULL) {
   
   if(is.data.frame(data)) {
     old_class <- class(data)
@@ -73,9 +71,9 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
   }
   
   # check colnames
-  cnames <- c(all.vars(formula), id, gender)
+  cnames <- c(all.vars(formula), id, gender, groupBy)
   if (length(cnames) > 0L) {
-    check_colnames(cnames)
+    check_colnames(data, cnames)
   }
   
   # check formula
@@ -92,7 +90,7 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
   subjects.all <- data[ , id]
   
   # check gender
-  
+    
   # include / exclude    
 
   if (!is.null(include)) {
@@ -113,27 +111,27 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, include=NULL, ex
     subjects_exclude <- NULL
   }
 
+  # check groupBy
+  data <- if (!is.null(groupBy)) {
+    if(!is_categorical(data[ , groupBy])) {
+      stop("groupBy must be a category.")
+    }    
+    data %>% group_by_(groupBy)
+  } else {
+    as_data_frame(data)
+  }
+  new_class <- class(data)
+  
   structure(
     data,
     formula = formula,
     idCol = id,
     genderCol = gender,
+    groupBy = groupBy,
     included = subjects_include,
     excluded = subjects_exclude,
-    class = c("phenotype", old_class)
+    class = c("phenotype", new_class)
   )
-  
-#   structure(
-#     list(data=data,
-#          formula=form,
-#          idCol=id,
-#          genderCol=gender,
-#          included=subjects_include,
-#          excluded=subjects_exclude
-#     ),
-#     class = "phenotype"
-#   )
-
 }
 
 # #' @export

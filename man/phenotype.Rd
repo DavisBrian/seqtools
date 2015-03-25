@@ -5,7 +5,7 @@
 \title{Create a phenotype object}
 \usage{
 phenotype(data, formula = NULL, id = NULL, gender = NULL,
-  include = NULL, exclude = NULL, reduce = FALSE)
+  groupBy = NULL, include = NULL, exclude = NULL)
 }
 \arguments{
 \item{data}{a data frame (or object coercible by as.data.frame to a data
