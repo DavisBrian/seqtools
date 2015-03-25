@@ -2,6 +2,7 @@
 % Please edit documentation in R/phenotype.R
 \name{phenotype}
 \alias{is.phenotype}
+\alias{is.summary_phenotype}
 \alias{phenotype}
 \title{Create a phenotype object}
 \usage{
@@ -9,6 +10,8 @@ phenotype(data, formula = NULL, id = NULL, gender = NULL,
   groupBy = NULL, include = NULL, exclude = NULL)
 
 is.phenotype(x)
+
+is.summary_phenotype(x)
 }
 \arguments{
 \item{data}{a data frame (or object coercible by as.data.frame to a data

@@ -3,9 +3,12 @@ library(seqtools)
 ## phenotype inputs
 phenotype.file <- "C:/Projects/ExomeChip/phenodata/EA_EC2_phen_DBP10.csv"
 p <- read.csv(phenotype.file, stringsAsFactors=FALSE)
-phenox <- phenotype(p, formula=DBP10~v1age01+sex+bmi01+pc1, id="id", gender="sex")
-summary(phenox)
+phenox <- phenotype(p, formula=DBP10~v1age01+sex+bmi01+pc1, id="id", groupBy="sex")
 
+tmp <- summary(phenox)
+
+write.summary_phenotype(tmp1, file="pheno.txt")
+write.summary_phenotype(tmp2, file="pheno2.txt")
 
 # snpinfo stuff
 snpinfo.file <- "C:/Projects/ExomeChip/data/SNPInfo_HumanExome-12v1_rev5_analysisCols.RData"

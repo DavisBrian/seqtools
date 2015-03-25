@@ -136,7 +136,7 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, groupBy=NULL, in
 
 #' @rdname phenotype
 #' @export
-is.phenotype <- function(x) inherits(phenox, "phenotype")
+is.phenotype <- function(x) inherits(x, "phenotype")
 
 
 # Summary functions  ----------------------------------------------------------
@@ -208,6 +208,11 @@ summarize_phenotype <- function(p, max.levels=5L) {
     class = "summary_phenotype"
   )  
 }
+
+#' @rdname phenotype
+#' @export
+is.summary_phenotype <- function(x) inherits(x, "summary_phenotype")
+
 
 
 #' @export
@@ -294,4 +299,59 @@ summary_categorical_cols <- function(dat, max.levels=5L) {
   } else {
     NA
   }
+}
+
+
+#' @export
+write.summary_phenotype <- function(x, file, append=FALSE, ...) {
+  tmp.wid = getOption("width") 
+  options(width = 10000)  
+  sink(file, append=append)
+  
+  if (is.summary_phenotype(x)) {
+    write_summary_phenotype(x)    
+  } else if (is.list(x)) {
+    nms <- names(x)
+    for (i in nms) {
+      print_rule(i, pad="=")
+      write_summary_phenotype(x[[i]])  
+    }
+    
+  } else {
+    stop("x is not of class summary_phenotype or list of summary_phenotype objexts")
+  }
+  
+  
+  sink()    
+  options(width = tmp.wid)   
+  return(invisible(NULL))    
+}
+
+
+write_summary_phenotype <- function(x) {
+  print_rule("Numeric Phenotypes")
+  if (is.data.frame(x$numeric)) {
+    print.data.frame(x$numeric, right=FALSE, row.names=FALSE)   
+  } else {
+    print("None") 
+  }
+  print_rule("Categorical (potentially) Phenotypes")
+  if (is.data.frame(x$categorical$sstats)) {
+    print.data.frame(x$categorical$sstats, right=FALSE, row.names=FALSE)
+    print_rule("Categorical Counts")
+    cnt <- FALSE
+    for (i in 1L:length(x$categorical$counts)) {
+      if (!is.null(x$categorical$counts[[i]])) {
+        names(dimnames(x$categorical$counts[[i]])) <- names(x$categorical$counts)[i]
+        print(x$categorical$counts[[i]])
+        cnt <- TRUE
+      }
+    }
+    if (!cnt) {
+      print("All potential categorical phenotypes have more levels than max.levels.")
+    }
+  } else {
+    print("None") 
+  }  
+  return(invisible(NULL))  
 }
