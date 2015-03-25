@@ -9,29 +9,22 @@ rule <- function(..., pad = "-") {
   message(title, " ", paste(rep(pad, width, collapse = "")))
 }
 
-# is_phenotype
-#' @export
-is_phenotype <- function(x) { "phenotype" %in% class(x) }
-
 
 # is_snpinfo
 #' @export
-is_snpinfo <- function(x) { "snpinfo" %in% class(x) }
+is_snpinfo <- function(x) inherits(phenox, "snpinfo")
 
 
 # is_genotype
 #' @export
-is_genotype <- function(x) { "genotype" %in% class(x) }
+is_genotype <- function(x) inherits(phenox, "genotype")
 
-# is_grouping <- function(x) {
-#   is.character(x) || is.factor(x) || is.integer(x) || is.logical(x)
-# }
 
 is_categorical <- function(x) {
   is.character(x) || is.factor(x) || is.integer(x) || is.logical(x)
 }
 
 get_numeric_cols <- function(x) { which(sapply(x, is.numeric)) }
-get_categoricalc_cols <- function(x) { which(sapply(x, is_categorical)) }
+get_categorical_cols <- function(x) { which(sapply(x, is_categorical)) }
 
 `%[[%` <- function(x, .) x[[.]]
