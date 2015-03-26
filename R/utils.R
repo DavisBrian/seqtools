@@ -1,23 +1,54 @@
 # copied from https://github.com/hadley/devtools/blob/master/R/utils.r
-rule <- function(..., pad = "-") {
+rule <- function(..., pad = "-", align="left", type="message") {
+#  tmp.wid = getOption("width")  
+  
   if (nargs() == 0) {
     title <- ""
   } else {
     title <- paste0(...)
   }
-  width <- getOption("width") - nchar(title) - 1
-  message(title, " ", paste(rep(pad, width, collapse = "")))
+  
+  len <- if(identical("message", type)) {
+    getOption("width")
+  } else {
+    80L
+  }
+  
+  out <- if (identical("left", align)) {
+    width <- len - nchar(title) - 1L
+    pad_line <- paste(rep(pad, width), collapse = "")
+    paste0(title, " ", pad_line)     
+  } else if (identical("right", align)) {
+    width <- len - nchar(title) - 1L
+    pad_line <- paste(rep(pad, width), collapse = "")
+    paste0(pad_line, " ", title)      
+  } else if (identical("center", align)) {
+    width <- floor((len - nchar(title) - 2L)/2)
+    pad_line <- paste(rep(pad, width), collapse = "")
+    paste0(pad_line, " ", title, " ", pad_line)  
+  } else {
+    stop("align must be 'left', 'right', or 'center'.")
+  }
+  
+  if(identical("message", type)) {
+    message(out)
+  } else {
+    cat(paste0(out, "\n"))
+  }
+  
+#  options(width = tmp.wid) 
+  return(invisible(NULL))  
 }
 
-print_rule <- function(..., pad = "-") {
-  if (nargs() == 0) {
-    title <- ""
-  } else {
-    title <- paste0(...)
-  }
-  width <- 80 - nchar(title) - 1
-  cat(paste0(title, " ", paste(rep(pad, width), collapse = "")), "\n")
-}
+# print_rule <- function(..., pad = "-") {
+#   if (nargs() == 0) {
+#     title <- ""
+#   } else {
+#     title <- paste0(...)
+#   }
+#   width <- 80 - nchar(title) - 1
+#   cat(paste0(title, " ", paste(rep(pad, width), collapse = "")), "\n")
+# }
 
 
 # is_snpinfo

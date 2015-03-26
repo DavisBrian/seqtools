@@ -61,7 +61,7 @@
 # [TBD]
 #  -add genderChar??? something to demote which character is "MALE/FEMALE"
 #  -add "family" (gaussian/binomial/survival)
-phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, groupBy=NULL, include=NULL, exclude=NULL) {
+phenotype <- function(data, .formula=NULL, .id=NULL, .gender=NULL, .groupBy=NULL, .include=NULL, .exclude=NULL) {
   
   if(is.data.frame(data)) {
     old_class <- class(data)
@@ -71,40 +71,40 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, groupBy=NULL, in
   }
   
   # check colnames
-  cnames <- c(all.vars(formula), id, gender, groupBy)
+  cnames <- c(all.vars(.formula), .id, .gender, .groupBy)
   if (length(cnames) > 0L) {
     check_colnames(data, cnames)
   }
   
   # check formula
-  if (!is.null(formula)) {
-    check_formula(data, formula)
+  if (!is.null(.formula)) {
+    check_formula(data, .formula)
   }
   
   # check id
-  if (is.null(id)) {
+  if (is.null(.id)) {
     data$.idCol <- rownames(data)
     id = ".idCol"
   } 
-  check_ids(data, id)  
-  subjects.all <- data[ , id]
+  check_ids(data, .id)  
+  subjects.all <- data[ , .id]
   
   # check gender
     
   # include / exclude    
 
-  if (!is.null(include)) {
-    subjects <- intersect(include, data[ , id])
-    data <- data[(data[ , id] %in% subjects), , drop=FALSE]
+  if (!is.null(.include)) {
+    subjects <- intersect(include, data[ , .id])
+    data <- data[(data[ , .id] %in% subjects), , drop=FALSE]
   }
   
   # exclude
-  if (!is.null(exclude)) {
-    subjects <- setdiff(data[ , id], exclude)
-    data <- data[(data[ , id] %in% subjects), , drop=FALSE]
+  if (!is.null(.exclude)) {
+    subjects <- setdiff(data[ , .id], .exclude)
+    data <- data[(data[ , .id] %in% subjects), , drop=FALSE]
   }
   
-  subjects_include <- data[ , id]
+  subjects_include <- data[ , .id]
   
   subjects_exclude <- setdiff(subjects.all, subjects_include)
   if (length(subjects_exclude) == 0L) {
@@ -112,11 +112,11 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, groupBy=NULL, in
   }
 
   # check groupBy
-  data <- if (!is.null(groupBy)) {
-    if(!is_categorical(data[ , groupBy])) {
+  data <- if (!is.null(.groupBy)) {
+    if(!is_categorical(data[ , .groupBy])) {
       stop("groupBy must be a category.")
     }    
-    data %>% group_by_(groupBy)
+    data %>% group_by_(.groupBy)
   } else {
     as_data_frame(data)
   }
@@ -124,10 +124,10 @@ phenotype <- function(data, formula=NULL, id=NULL, gender=NULL, groupBy=NULL, in
   
   structure(
     data,
-    formula = formula,
-    idCol = id,
-    genderCol = gender,
-    groupBy = groupBy,
+    formula = .formula,
+    idCol = .id,
+    genderCol = .gender,
+    groupBy = .groupBy,
     included = subjects_include,
     excluded = subjects_exclude,
     class = c("phenotype", new_class)
@@ -195,6 +195,8 @@ summary.phenotype <- function(p, max.levels=5L) {
   } else {
     summarize_phenotype(p, max.levels)
   } 
+  
+  attr(all_data, "groupBy") = attr(p, "groupBy")
   return(all_data)
 }
 
@@ -221,7 +223,7 @@ print.summary_phenotype <- function(x, ...) {
   if (is.data.frame(x$numeric)) {
     print.data.frame(x$numeric, right=FALSE, row.names=FALSE)   
   } else {
-    print("None") 
+    cat("None\n") 
   }
   rule("Categorical (potentially) Phenotypes")
   if (is.data.frame(x$categorical$sstats)) {
@@ -236,10 +238,10 @@ print.summary_phenotype <- function(x, ...) {
       }
     }
     if (!cnt) {
-      print("All potential categorical phenotypes have more levels than max.levels.")
+      cat("All potential categorical phenotypes have more levels than max.levels.\n")
     }
   } else {
-    print("None") 
+    cat("None\n") 
   }  
 }
 
@@ -313,8 +315,10 @@ write.summary_phenotype <- function(x, file, append=FALSE, ...) {
   } else if (is.list(x)) {
     nms <- names(x)
     for (i in nms) {
-      print_rule(i, pad="=")
-      write_summary_phenotype(x[[i]])  
+      txt <- paste0("GROUP (", attr(x, "groupBy"), " == ", i, ")")
+      rule(txt, pad="=", align="center", type="txt")
+      write_summary_phenotype(x[[i]])
+      cat("\n")
     }
     
   } else {
@@ -329,16 +333,16 @@ write.summary_phenotype <- function(x, file, append=FALSE, ...) {
 
 
 write_summary_phenotype <- function(x) {
-  print_rule("Numeric Phenotypes")
+  rule("Numeric Phenotypes", type="txt", align="center")
   if (is.data.frame(x$numeric)) {
     print.data.frame(x$numeric, right=FALSE, row.names=FALSE)   
   } else {
-    print("None") 
+    cat("None\n") 
   }
-  print_rule("Categorical (potentially) Phenotypes")
+  rule("Categorical (potentially) Phenotypes", type="txt", align="center")
   if (is.data.frame(x$categorical$sstats)) {
     print.data.frame(x$categorical$sstats, right=FALSE, row.names=FALSE)
-    print_rule("Categorical Counts")
+    rule("Categorical Counts", type="txt", align="center")
     cnt <- FALSE
     for (i in 1L:length(x$categorical$counts)) {
       if (!is.null(x$categorical$counts[[i]])) {
@@ -348,10 +352,10 @@ write_summary_phenotype <- function(x) {
       }
     }
     if (!cnt) {
-      print("All potential categorical phenotypes have more levels than max.levels.")
+      cat("All potential categorical phenotypes have more levels than max.levels.\n")
     }
   } else {
-    print("None") 
+    cat("None\n") 
   }  
   return(invisible(NULL))  
 }
