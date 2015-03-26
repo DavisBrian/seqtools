@@ -51,11 +51,6 @@ rule <- function(..., pad = "-", align="left", type="message") {
 # }
 
 
-# is_snpinfo
-#' @export
-is_snpinfo <- function(x) inherits(phenox, "snpinfo")
-
-
 # is_genotype
 #' @export
 is_genotype <- function(x) inherits(phenox, "genotype")

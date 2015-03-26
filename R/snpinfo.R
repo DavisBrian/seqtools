@@ -107,17 +107,18 @@ snpinfo <- function(data, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos
     keep[is.na(keep)] <- FALSE
   }
   
-  dat <- unique(data.frame(data[, cn, drop=FALSE], .keep=keep, stringAsFactors=FALSE)) 
+  data <- as_data_frame(unique(data.frame(data[, cn, drop=FALSE], .keep=keep, stringAsFactors=FALSE)))
+  new_class <- class(data)
   
   structure(
-    dat,
+    data,
     snpNames = .snpNames,
     aggregateBy = .aggregateBy,
     chrCol = .chr,
     posCol = .pos,
     refCol = .ref,
     altCol = .alt,
-    class = c("snpinfo", old_class)
+    class = c("snpinfo", new_class)
   )
   
   #   structure(
@@ -133,6 +134,10 @@ snpinfo <- function(data, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos
   #   )
   
 }
+
+#' @rdname snpinfo
+#' @export
+is.snpinfo <- function(x) inherits(phenox, "snpinfo")
 
 # #' @export
 # head.snpinfo<- function(x, n=6L, ...) {
