@@ -2,10 +2,13 @@
 % Please edit documentation in R/genotype.R
 \name{genotype}
 \alias{genotype}
+\alias{is.genotype}
 \title{Create a genotype object}
 \usage{
 genotype(Z, subject.include = NULL, subject.exclude = NULL,
   snp.include = NULL, snp.exclude = NULL)
+
+is.genotype(x)
 }
 \arguments{
 \item{Z}{A numeric genotype matrix (dosage matrix) or coercible with

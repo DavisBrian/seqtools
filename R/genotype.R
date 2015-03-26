@@ -48,8 +48,9 @@
 #
 # [TBD]
 #  - sparse matrix
+#  - model type (additive, etc) support
 genotype <- function(Z, subject.include=NULL, subject.exclude=NULL, snp.include=NULL, snp.exclude=NULL) {
-
+  
   if (!is.matrix(Z)) {
     Z <- as.matrix(Z)
   }
@@ -67,52 +68,61 @@ genotype <- function(Z, subject.include=NULL, subject.exclude=NULL, snp.include=
                       row.exclude=subject.exclude,
                       col.include=snp.include,
                       col.exclude=snp.exclude
-                      )
-    
+  )
+  new_class <- class(data)
+  
   structure(
-    list(data=data,
-         AAC=colSums(data, na.rm=TRUE),
-         AAF=colMeans(data, na.rm=TRUE)/2.0,
-         included=list(subjects=rownames(data), snps=colnames(data)),
-         excluded=list(subjects=setdiff(rownames(Z), rownames(data)), 
-                       snps=setdiff(colnames(Z), colnames(data)))
-    ),
-    class = "genotype"
-  )    
+    data,
+    AAC=colSums(data, na.rm=TRUE),
+    AAF=colMeans(data, na.rm=TRUE)/2.0,
+    included=list(subjects=rownames(data), snps=colnames(data)),
+    excluded=list(subjects=setdiff(rownames(Z), rownames(data)), 
+                  snps=setdiff(colnames(Z), colnames(data))),
+    class = c("genotype", new_class)
+  )
+  
+  #   structure(
+  #     list(data=data,
+  #          AAC=colSums(data, na.rm=TRUE),
+  #          AAF=colMeans(data, na.rm=TRUE)/2.0,
+  #          included=list(subjects=rownames(data), snps=colnames(data)),
+  #          excluded=list(subjects=setdiff(rownames(Z), rownames(data)), 
+  #                        snps=setdiff(colnames(Z), colnames(data)))
+  #     ),
+  #     class = "genotype"
+  #   )    
 }
 
+#' @rdname genotype
+#' @export
+is.genotype <- function(x) inherits(x, "genotype")
+
+# [TBD] BASIC PRINT METHOD that way we don't get pages of crap
 
 #' @export
 head.genotype <- function(x, n=6L, ...) {    
   stopifnot(length(n) == 1L)
   
   ngr <- if (n < 0L) {
-    max(nrow(x$data) + n, 0L)   
+    max(nrow(x) + n, 0L)   
   } else { 
-    min(n, nrow(x$data))
+    min(n, nrow(x))
   }
   
   ngc <- if (n < 0L) {
-    max(ncol(x$data) + n, 0L)   
+    max(ncol(x) + n, 0L)   
   } else { 
-    min(n, ncol(x$data))
+    min(n, ncol(x))
   }
   
-  list(data=x$data[seq_len(ngr), seq_len(ngc), drop = FALSE],
-       AAC=head(x$AAC, n=n),
-       AAF=head(x$AAF, n=n),
-       included=list(subjects=head(x$included$subjects, n=n), 
-                     snps=head(x$included$snps, n=n)),
-       excluded=list(subjects=head(x$excluded$subjects, n=n), 
-                     snps=head(x$excluded$snps, n=n))
-  )
+  x[seq_len(ngr), seq_len(ngc), drop = FALSE]
 }
 
 #' @export
 tail.genotype <- function(x, n=6L, ...) {
   stopifnot(length(n) == 1L)
  
-  nrx <- nrow(x$data)
+  nrx <- nrow(x)
   ngr <- if (n < 0L) {
     max(nrx + n, 0L)
   } else {
@@ -120,7 +130,7 @@ tail.genotype <- function(x, n=6L, ...) {
   }
   selr <- seq.int(to = nrx, length.out = ngr)
   
-  ncx <- ncol(x$data)
+  ncx <- ncol(x)
   ngc <- if (n < 0L) {
     max(ncx + n, 0L)
   } else {
@@ -129,12 +139,138 @@ tail.genotype <- function(x, n=6L, ...) {
   selc <- seq.int(to = ncx, length.out = ngc)
   
 
-  list(data=x$data[selr, selc, drop = FALSE],
-       AAC=tail(x$AAC, n=n),
-       AAF=tail(x$AAF, n=n),
-       included=list(subjects=tail(x$included$subjects, n=n), 
-                     snps=tail(x$included$snps, n=n)),
-       excluded=list(subjects=tail(x$excluded$subjects, n=n), 
-                     snps=tail(x$excluded$snps, n=n))
+  x[selr, selc, drop = FALSE]
+}
+
+# metadata  functions  --------------------------------------------------------
+
+# get functions
+#get_subjects.genotype <- function(x) rownames(x)
+#get_snps.genotype <- function(x) colnames(x)
+#' @export
+get_subjects.genotype <- function(x, excluded=FALSE) {
+  stopifnot(length(excluded) == 1L)
+  if (excluded) {
+    attr(x, "excluded")[["subjects"]]  
+  } else {
+    attr(x, "included")[["subjects"]]
+  }
+}
+
+#' @export
+get_snps.genotype <- function(x, excluded=FALSE) {
+  stopifnot(length(excluded) == 1L)
+  if (excluded) {
+    attr(x, "excluded")[["snps"]]  
+  } else {
+    attr(x, "included")[["snps"]]
+  }
+}
+
+#' @export
+get_AAC.genotype <- function(x) attr(x, "AAC")
+
+#' @export
+get_AAF.genotype <- function(x) attr(x, "AAF")
+
+# Summary functions  ----------------------------------------------------------
+
+#' @export
+summary.genotype <- function(x) {
+  x <- if (is.genotype(x) || is.matrix(x)) {
+    x
+  } else if (is.data.frame(x)) {
+    as.matrix(x)
+  } else {
+    stop("x must be of class 'genotype'")
+  }
+    
+  structure(
+    list(
+      site=site_metrics_genotype(x), 
+      sample=sample_metrics_genotype(x)
+    ), 
+    class = "summary_genotype"
+  ) 
+}
+
+site_metrics_genotype <- function(gt) {
+  gt_is_na <- is.na(gt)  
+  
+  N_site <- colSums(!gt_is_na, na.rm=TRUE)
+  RR_site <- colSums(gt == 0L, na.rm=TRUE)
+  RA_site <- colSums(gt == 1L, na.rm=TRUE)
+  AA_site <- colSums(gt == 2L, na.rm=TRUE)
+  nMiss_site <- colSums(gt_is_na)
+  MRate_site <- colMeans(gt_is_na)
+  AAC_site <- colSums(gt, na.rm=TRUE)
+  AAF_site <-colMeans(gt, na.rm=TRUE)/2.0
+  
+  data_frame(id = colnames(gt),
+             N=N_site,
+             RR=RR_site,
+             RA=RA_site,
+             AA=AA_site, 
+             Nmiss=nMiss_site,
+             MissRate=MRate_site,
+             AAC=AAC_site, 
+             AAF=AAF_site 
+  )
+  
+}
+
+sample_metrics_genotype <- function(gt) {
+  gt_is_na <- is.na(gt) 
+  
+  # sample statistics
+  N_sample <- rowSums(!gt_is_na, na.rm=TRUE)  
+  RR_sample <- rowSums(gt == 0L, na.rm=TRUE)
+  RA_sample <- rowSums(gt == 1L, na.rm=TRUE)
+  AA_sample <- rowSums(gt == 2L, na.rm=TRUE)
+  nMiss_sample <- rowSums(gt_is_na)
+  MRate_sample <- rowMeans(gt_is_na)
+
+  data_frame(id = rownames(gt),
+             N=N_sample, 
+             RR=RR_sample, 
+             RA=RA_sample, 
+             AA=AA_sample, 
+             NMiss=nMiss_sample, 
+             MissRate=MRate_sample
+  )  
+}
+
+#' @export
+print.summary_genotype <- function(x, ...) {
+  rule("Site Level Metrics")
+  if (is.data.frame(x$site)) {
+    print.data.frame(x$site, right=FALSE, row.names=FALSE)   
+  } else {
+    print("None") 
+  }
+  rule("Sample Level Metrics")
+  if (is.data.frame(x$sample)) {
+    print.data.frame(x$sample, right=FALSE, row.names=FALSE)   
+  } else {
+    print("None") 
+  }
+  
+}
+
+#' @export
+head.summary_genotype <- function(x, n=6L, ...) {
+  stopifnot(length(n) == 1L)
+  
+  list(site=head(x$site, n=n),
+       sample=head(x$sample, n=n)
+  )
+}
+
+#' @export
+tail.summary_genotype <- function(x, n=6L, ...) {
+  stopifnot(length(n) == 1L)
+  
+  list(site=tail(x$site, n=n),
+       sample=tail(x$sample, n=n)
   )
 }

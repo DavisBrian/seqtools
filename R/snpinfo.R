@@ -107,7 +107,7 @@ snpinfo <- function(data, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos
     keep[is.na(keep)] <- FALSE
   }
   
-  data <- as_data_frame(unique(data.frame(data[, cn, drop=FALSE], .keep=keep, stringAsFactors=FALSE)))
+  data <- as_data_frame(unique(data.frame(data[, cn, drop=FALSE], .keep=keep)))
   new_class <- class(data)
   
   structure(
@@ -120,24 +120,18 @@ snpinfo <- function(data, .snpNames="Name", .aggregateBy="gene", .chr=NULL, .pos
     altCol = .alt,
     class = c("snpinfo", new_class)
   )
-  
-  #   structure(
-  #     list(data=dat,
-  #          snpNames=.snpNames,
-  #          aggregateBy=.aggregateBy,
-  #          chrCol=.chr,
-  #          posCol=.pos,
-  #          refCol=.ref,
-  #          altCol=.alt
-  #     ),
-  #     class = "snpinfo"
-  #   )
-  
 }
 
 #' @rdname snpinfo
 #' @export
-is.snpinfo <- function(x) inherits(phenox, "snpinfo")
+is.snpinfo <- function(x) inherits(x, "snpinfo")
+
+# metadata  functions  --------------------------------------------------------
+
+# get functions
+get_snps.snpinfo  <- function(x) unique(x[ , attr(x, "snpNames")])
+get_aggreageBy  <- function(x) unique(x[ , attr(x, "aggregateBy")])
+
 
 # #' @export
 # head.snpinfo<- function(x, n=6L, ...) {

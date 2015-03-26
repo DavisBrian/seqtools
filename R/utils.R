@@ -51,11 +51,6 @@ rule <- function(..., pad = "-", align="left", type="message") {
 # }
 
 
-# is_genotype
-#' @export
-is_genotype <- function(x) inherits(phenox, "genotype")
-
-
 is_categorical <- function(x) {
   is.character(x) || is.factor(x) || is.integer(x) || is.logical(x)
 }
