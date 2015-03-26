@@ -1,3 +1,5 @@
+library(dplyr)
+
 context("Creating phenotype Object")
 
 df <- data.frame(
@@ -9,14 +11,26 @@ df <- data.frame(
   stringsAsFactors=FALSE
 )
 
+.df <- as_data_frame(df)
 
-res <- list(data=df, formula=NULL, idCol=NULL, genderCol=NULL, included=as.character(1:length(df$y)), excluded=NULL)
-class(res) <- "phenotype"
+res <- structure(
+  .df, 
+  formula = NULL, 
+  idCol = "sid", 
+  genderCol = NULL, 
+  groupBy = NULL,
+  included = .df$sid, 
+  excluded = NULL,
+  class = c("phenotype", class(.df))
+)
 
-# formula
-test_that("Formula", {
-  expect_equal(phenotype(df), res)  
+# basic phenotype object creation
+test_that("Phenotype object creation", {
+  expect_equal(phenotype(df, .id="sid"), res)  
   
 
   
 })
+
+
+
