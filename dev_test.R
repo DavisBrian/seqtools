@@ -33,6 +33,22 @@ head(geno)
 sGT <- summary(geno)
 head(sGT, 10)
 
+
+foo <- function(x) x[[attr(x, "snpNames")]]
+
+length(get_snps(mysi))
+length(get_snps(geno))
+length(get_snps(geno, excluded=TRUE))
+
+length(get_subjects(geno))
+length(get_subjects(geno, excluded=TRUE))
+
+length(get_subjects(pheno))
+length(get_subjects(pheno, excluded=TRUE))
+
+length(get_subjects(pheno_grpd))
+
+
 cmn <- Intersect(geno=gt, pheno=phenox, si=mysi)
 cmn2 <- Intersect(geno=gt, pheno=phenox)
 cmn3 <- Intersect(geno=gt, si=mysi)

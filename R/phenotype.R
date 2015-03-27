@@ -1,3 +1,6 @@
+# TBD / Ideas
+# - [ method to keep class when subsetting / disallow removal of needed columns
+
 #' @title Create a phenotype object
 #'   
 #' @description This function creates a phenotype object.
@@ -61,6 +64,7 @@
 # [TBD]
 #  -add genderChar??? something to demote which character is "MALE/FEMALE"
 #  -add "family" (gaussian/binomial/survival)
+#  -add print method to show the meta data
 phenotype <- function(data, .formula=NULL, .id=NULL, .gender=NULL, .groupBy=NULL, .include=NULL, .exclude=NULL) {
   
   if(is.data.frame(data)) {
@@ -138,6 +142,18 @@ phenotype <- function(data, .formula=NULL, .id=NULL, .gender=NULL, .groupBy=NULL
 #' @export
 is.phenotype <- function(x) inherits(x, "phenotype")
 
+# metadata  functions  --------------------------------------------------------
+
+# get functions
+#' @export
+get_subjects.phenotype <- function(x, excluded=FALSE) {
+  stopifnot(length(excluded) == 1L)
+  if (excluded) {
+    attr(x, "excluded")
+  } else {
+    x[[attr(x, "idCol")]]
+  }
+}
 
 # Summary functions  ----------------------------------------------------------
 

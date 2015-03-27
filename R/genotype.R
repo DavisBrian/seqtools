@@ -1,3 +1,7 @@
+# TBD / Ideas
+# - [ method to keep class and AAC / AFF correct  when subsetting
+# - c method to combine genotype matrices
+
 #' @title Create a genotype object
 #'   
 #' @description This function creates a genotype object.
@@ -158,7 +162,7 @@ get_subjects.genotype <- function(x, excluded=FALSE) {
 }
 
 #' @export
-get_snps.genotype <- function(x, excluded=FALSE) {
+get_snps.genotype <- function(x, excluded=FALSE, ...) {
   stopifnot(length(excluded) == 1L)
   if (excluded) {
     attr(x, "excluded")[["snps"]]  
@@ -166,6 +170,8 @@ get_snps.genotype <- function(x, excluded=FALSE) {
     attr(x, "included")[["snps"]]
   }
 }
+
+
 
 #' @export
 get_AAC.genotype <- function(x) attr(x, "AAC")

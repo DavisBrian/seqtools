@@ -23,3 +23,7 @@
 #' @import dplyr
 # @import logistf
 NULL
+
+# TBD
+# - use enviroments on snpinfo objects to avoid copies
+# - use environments on genotype objects to avoid copies
