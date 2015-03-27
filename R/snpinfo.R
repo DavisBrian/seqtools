@@ -132,6 +132,7 @@ is.snpinfo <- function(x) inherits(x, "snpinfo")
 #' @export
 get_snps.snpinfo <- function(x, ...) x[[attr(x, "snpNames")]] %>% unique
 
+get_aggregateBy <- function(x, ...) x[[attr(x, "aggregateBy")]] %>% unique
 # get_aggreageBy  <- function(x) unique(x[ , attr(x, "aggregateBy")])
 
 
